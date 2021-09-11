@@ -1,0 +1,44 @@
+hostname R1
+!
+no ip domain lookup
+ip domain name network-tic.com
+!
+ip ssh version 2
+!
+enable password cisco
+enable secret cisco123
+username cisco privilege 15 password 0 cisco
+!
+interface GigabitEthernet0/0
+ no shut
+ description LAN_OFICINA
+ ip address 10.15.1.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/1
+ no shut
+ description LAN_CASA
+ ip address dhcp
+ duplex auto
+ speed auto
+ media-type rj45
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ privilege level 15
+ login local
+ transport input all
+!
+no scheduler allocate
+!
+crypto key generate rsa modulus 1024
+!
+end
