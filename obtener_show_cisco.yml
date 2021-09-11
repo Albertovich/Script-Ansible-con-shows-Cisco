@@ -1,0 +1,24 @@
+---
+- name: Obtener Show Cisco
+  hosts: Switch1
+  vars:
+    commands:
+      - show run
+      - show clock
+      - show version
+      - show ip int br
+      - show arp
+      - show ip route
+      - show cdp nei
+  tasks:
+    - name: Obtener Show Cisco
+      ios_command:
+        commands: "{{ commands }}"
+      register: output
+    - name: Conseguir fecha
+      command: date +%Y%m%d
+      register: timestamp
+    - name: Guardar la salida en un fichero
+      copy:
+        content: "{{output.stdout | zip(commands) | flatten | join('\n') }}"
+        dest: "output/{{ inventory_hostname }}_{{ timestamp.stdout }}.txt"
