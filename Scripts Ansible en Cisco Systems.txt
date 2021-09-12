@@ -1,0 +1,149 @@
+#####Para la configuración de los equipos
+##########################################
+##### CISCO CATALYST######################
+##########################################
+interface GigabitEthernet0/0
+ description Conexion_Fisica_LAN_Gestion
+ switchport access vlan 162
+ switchport mode access
+ negotiation auto
+!
+!
+interface Vlan162
+ description Conexion_Gestion_LAN
+ ip address 192.168.162.5 255.255.255.0
+ no shut
+!
+#########################################
+# Habilitar SSH en router CISCO
+#########################################
+
+no ip domain lookup
+ip domain name network-tic.com
+!
+! creamos el usuario con permiso de administración 
+!
+username alberto privilege 15 password 0 cisco
+!
+crypto key generate rsa modulus 1024
+!
+!
+line vty 0 4
+ login local
+ transport input all
+!
+
+###########################################
+## Desviar la salida a un fichero #########
+###########################################
+root@ANSIBLESERVER:~# ansible switches -m raw -a "show run" -u alberto -k | grep 'CHANGED\|username' > usuarios.txt
+SSH password:
+root@ANSIBLESERVER:~# more usuarios.txt
+S3 | CHANGED | rc=0 >>
+username alberto privilege 15 password 0 cisco
+S2 | CHANGED | rc=0 >>
+username alberto privilege 15 password 0 cisco
+username prueba password 0 prueba
+S1 | CHANGED | rc=0 >>
+username alberto privilege 15 password 0 cisco
+root@ANSIBLESERVER:~#
+
+
+##################################################
+####Desviar la salida de show run a un fichero ###
+##################################################
+root@ANSIBLESERVER:~# ansible switches -m raw -a "show run" -u alberto -k > shrun.txt
+SSH password:
+root@ANSIBLESERVER:~#
+##################################################
+#### SHOW ARP ####################################
+##################################################
+root@ANSIBLESERVER:~# ansible switches -m raw -a "show arp" -u alberto -k
+SSH password:
+S2 | CHANGED | rc=0 >>
+
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.162.1          48   0c73.574a.9900  ARPA   Vlan162
+Internet  192.168.162.2           0   0050.56f2.5e5d  ARPA   Vlan162
+Internet  192.168.162.3          49   0c73.5741.80a2  ARPA   Vlan162
+Internet  192.168.162.4           -   0c73.5713.80a2  ARPA   Vlan162
+Internet  192.168.162.5          56   0c73.57da.80a2  ARPA   Vlan162
+Internet  192.168.162.133       186   ca6d.813d.5cc5  ARPA   Vlan162
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************Shared connection to s2 closed.
+
+S1 | CHANGED | rc=0 >>
+
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.162.1          78   0c73.574a.9900  ARPA   Vlan162
+Internet  192.168.162.2           0   0050.56f2.5e5d  ARPA   Vlan162
+Internet  192.168.162.3           -   0c73.5741.80a2  ARPA   Vlan162
+Internet  192.168.162.4          49   0c73.5713.80a2  ARPA   Vlan162
+Internet  192.168.162.5          49   0c73.57da.80a2  ARPA   Vlan162
+Internet  192.168.162.133       186   ca6d.813d.5cc5  ARPA   Vlan162
+Internet  192.168.162.254        56   0050.56e2.dd66  ARPA   Vlan162
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************Shared connection to s1 closed.
+
+S3 | CHANGED | rc=0 >>
+
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.162.1          64   0c73.574a.9900  ARPA   Vlan162
+Internet  192.168.162.2           0   0050.56f2.5e5d  ARPA   Vlan162
+Internet  192.168.162.3          49   0c73.5741.80a2  ARPA   Vlan162
+Internet  192.168.162.4          56   0c73.5713.80a2  ARPA   Vlan162
+Internet  192.168.162.5           -   0c73.57da.80a2  ARPA   Vlan162
+Internet  192.168.162.133       186   ca6d.813d.5cc5  ARPA   Vlan162
+**************************************************************************
+* IOSv is strictly limited to use for evaluation, demonstration and IOS  *
+* education. IOSv is provided as-is and is not supported by Cisco's      *
+* Technical Advisory Center. Any use or disclosure, in whole or in part, *
+* of the IOSv Software or Documentation to any third party for any       *
+* purposes is expressly prohibited except as otherwise authorized by     *
+* Cisco in writing.                                                      *
+**************************************************************************Shared connection to s3 closed.
+
+root@ANSIBLESERVER:~#
+
+
+#############################################################
+#### SHOW  ARP con una ip en concreto #######################
+##############################################################
+root@ANSIBLESERVER:~# ansible switches -m raw -a "show arp" -u alberto -k | grep 'CHANGED\|162.5'
+SSH password:
+S2 | CHANGED | rc=0 >>
+Internet  192.168.162.5          58   0c73.57da.80a2  ARPA   Vlan162
+S3 | CHANGED | rc=0 >>
+Internet  192.168.162.5           -   0c73.57da.80a2  ARPA   Vlan162
+S1 | CHANGED | rc=0 >>
+Internet  192.168.162.5          51   0c73.57da.80a2  ARPA   Vlan162
+root@ANSIBLESERVER:~#
+##############################################################
+## SHOW MAC ADDRESS-TABLE 
+#############################################################
+root@ANSIBLESERVER:~# ansible switches -m raw -a "show mac address-table" -u alberto -k | grep 'CHANGED\|0050.56f2.5e5d'
+SSH password:
+S1 | CHANGED | rc=0 >>
+ 162    0050.56f2.5e5d    DYNAMIC     Gi0/0
+S2 | CHANGED | rc=0 >>
+ 162    0050.56f2.5e5d    DYNAMIC     Gi0/0
+S3 | CHANGED | rc=0 >>
+ 162    0050.56f2.5e5d    DYNAMIC     Gi0/0
+root@ANSIBLESERVER:~#
+
+###############################################################
+
+
+
